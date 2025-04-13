@@ -46,7 +46,7 @@ deepfake_detector/
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/hussainpatan9/deepfake-detection-django
    cd deepfake_detector
    ```
 2. Create and activate a virtual environment:
