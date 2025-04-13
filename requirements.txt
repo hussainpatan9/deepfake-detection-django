@@ -1,0 +1,10 @@
+django>=4.2.0
+tensorflow>=2.12.0
+pillow>=9.5.0
+numpy>=1.24.3
+django-ratelimit>=4.1.0
+whitenoise>=6.5.0
+gunicorn>=21.2.0
+APScheduler==3.10.4
+pytz==2023.3
+python-dateutil==2.8.2

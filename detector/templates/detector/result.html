@@ -1,0 +1,403 @@
+{% extends 'detector/base.html' %}
+
+{% block extra_css %}
+<style>
+    @media (prefers-color-scheme: dark) {
+        .analysis-header {
+            background: linear-gradient(to right, rgba(var(--bs-primary-rgb), 0.1), transparent);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Print-only header -->
+<div class="report-header d-none d-print-block">
+    <h1 class="text-center mb-3">DeepFake Detection Report</h1>
+    <div class="row">
+        <div class="col-6">
+            <p><strong>Date:</strong> {{ analyzed_at|date:"F j, Y, g:i a" }}</p>
+            <p><strong>Model:</strong> {{ model_info.name }}</p>
+        </div>
+        <div class="col-6 text-end">
+            <p><strong>Report ID:</strong> {{ analyzed_at|date:"Ymd" }}-{{ filename|slugify }}</p>
+            <p><strong>Framework:</strong> {{ model_info.framework }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Main Result Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h4 class="mb-0">Analysis Result</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Image Column -->
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="position-relative rounded overflow-hidden shadow-sm">
+                            <img src="{{ uploaded_file_url }}" class="img-fluid w-100" alt="Analyzed image">
+                            <div class="position-absolute bottom-0 start-0 w-100 p-3" style="background: rgba(0,0,0,0.7);">
+                                <small class="text-white">
+                                    <i class="fas fa-image me-2"></i>Original Size: {{ original_size }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Column -->
+                    <div class="col-md-6">
+                        <!-- Gauge Visualization -->
+                        <div class="gauge-container mb-5">  <!-- Increased bottom margin -->
+                            <div class="gauge {% if prediction == 'Real' %}gauge-real{% else %}gauge-fake{% endif %}">
+                                <div class="gauge-value" style="--percentage: {{ confidence|cut:'%' }}">
+                                    <div class="gauge-fill"></div>
+                                </div>
+                                <div class="gauge-label" style="top: 50%; transform: translateY(-50%);">
+                                    {{ confidence }}
+                                    <small class="d-block mt-2">{{ prediction }}</small>  <!-- Added top margin -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Result Box with adjusted spacing -->
+                        <div class="result-box p-4 rounded-3 mb-3 mt-4 {% if prediction == 'Real' %}bg-success bg-opacity-10 border border-success{% else %}bg-danger bg-opacity-10 border border-danger{% endif %}">
+                            <div class="d-flex align-items-start mb-3">  <!-- Changed to align-items-start -->
+                                <i class="fas {% if prediction == 'Real' %}fa-check-circle text-success{% else %}fa-exclamation-circle text-danger{% endif %} fa-2x me-3 mt-1"></i>
+                                <div>
+                                    <h5 class="mb-2">{{ prediction }}</h5>  <!-- Increased bottom margin -->
+                                    <p class="mb-0 text-muted">Confidence Level: 
+                                        <span class="badge {% if confidence_level == 'high' %}bg-success{% elif confidence_level == 'medium' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ confidence_level|title }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {% if prediction == 'Real' %}bg-success{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ confidence|cut:'%' }}%">
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if prediction == 'Fake' %}
+                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <div>This image has been detected as potentially manipulated or artificially generated.</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Tabs Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">
+                <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#details">Analysis Details</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#technical">Technical Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#metadata">Image Metadata</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Analysis Details Tab -->
+                    <div class="tab-pane fade show active" id="details">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6>Confidence Analysis</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Raw Probability
+                                        <span class="badge bg-primary">{{ raw_probability|floatformat:4 }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Decision Threshold
+                                        <span class="badge bg-secondary">0.5</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Confidence Level
+                                        <span class="badge {% if confidence_level == 'high' %}bg-success{% elif confidence_level == 'medium' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ confidence_level|title }}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Analysis Timing</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Analyzed At
+                                        <small>{{ analyzed_at|date:"F j, Y, g:i a" }}</small>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Processing Time
+                                        <small>{{ processing_time|floatformat:2 }}s</small>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Analyzed At (Local)</small>
+                                        <strong>{{ analyzed_at_local|date:"F j, Y, g:i:s a T" }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Framework</small>
+                                        <strong>{{ model_info.framework }}</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Info Tab -->
+                    <div class="tab-pane fade" id="technical">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6>Model Information</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Model Name</small>
+                                        <strong>{{ model_info.name }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Architecture</small>
+                                        <strong>{{ model_info.architecture }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Processing Device</small>
+                                        <strong>{{ device_used }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Input Size</small>
+                                        <strong>{{ model_info.input_size }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Framework</small>
+                                        <strong>{{ model_info.framework }}</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Image Information</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Original Size</small>
+                                        <strong>{{ original_size }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">Processed Size</small>
+                                        <strong>256 x 256</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <small class="d-block text-muted">File Type</small>
+                                        <strong>{{ image_type }}</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Tab -->
+                    <div class="tab-pane fade" id="metadata">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Image metadata can provide insights about the image's origin and modifications.
+                        </div>
+                        {% if metadata %}
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Property</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for key, value in metadata.items %}
+                                        <tr>
+                                            <td>{{ key }}</td>
+                                            <td>{{ value }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No metadata available for this image.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+            <a href="{% url 'detector:home' %}" class="btn btn-primary px-4 no-print">
+                <i class="fas fa-arrow-left me-2"></i>Analyze Another Image
+            </a>
+            <button class="btn btn-outline-secondary px-4 ms-2 no-print" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Generate PDF Report
+            </button>
+            {% if model_info.architecture != 'Custom CNN' %}
+            <button class="btn btn-info px-4 ms-2 no-print" onclick="showGradCAM()">
+                <i class="fas fa-eye me-2"></i>View Attention Map
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Add GradCAM Modal -->
+        <div class="modal fade" id="gradcamModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Model Attention Visualization</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="spinner-border text-primary" role="status" id="gradcamSpinner">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <img id="gradcamImage" class="img-fluid" style="display: none;">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add print footer template -->
+        <div class="d-none d-print-block mt-5 pt-5 border-top">
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted">Generated by DeepFake Detector</small>
+                </div>
+                <div class="col-6 text-end">
+                    <small class="text-muted">Page 1 of 1</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Info Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+    <div class="toast show" role="alert">
+        <div class="toast-header bg-primary bg-opacity-10">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            <strong class="me-auto">Analysis Details</strong>
+            <small>just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-clock me-2 text-primary"></i>
+                <div>
+                    <small class="d-block text-muted">Processing Time</small>
+                    <strong>{{ processing_time }}s</strong>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-microchip me-2 text-primary"></i>
+                <div>
+                    <small class="d-block text-muted">Device</small>
+                    <strong>{{ device_used }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all tooltips
+    var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltips.map(function (tooltip) {
+        return new bootstrap.Tooltip(tooltip)
+    });
+
+    // Initialize all toasts
+    var toasts = [].slice.call(document.querySelectorAll('.toast'))
+    toasts.map(function (toast) {
+        return new bootstrap.Toast(toast, {
+            autohide: false,
+            animation: true
+        })
+    });
+
+    // Add fade animations to elements
+    document.querySelectorAll('.fade-in').forEach(function(element) {
+        element.classList.add('show');
+    });
+});
+
+// Add print event handler
+window.onbeforeprint = function() {
+    // Expand all tabs before printing
+    document.querySelectorAll('.tab-pane').forEach(function(tab) {
+        tab.classList.add('active', 'show');
+    });
+};
+
+window.onafterprint = function() {
+    // Restore original tab state
+    document.querySelectorAll('.tab-pane').forEach(function(tab) {
+        if (!tab.id.startsWith('details')) {
+            tab.classList.remove('active', 'show');
+        }
+    });
+};
+
+function showGradCAM() {
+    const modelId = '{{ model_id }}';
+    console.log('Model ID:', modelId); // Debug log
+    
+    if (!modelId) {
+        alert('Model ID not found. Please try analyzing the image again.');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('gradcamModal'));
+    const spinner = document.getElementById('gradcamSpinner');
+    const gradcamImage = document.getElementById('gradcamImage');
+    
+    modal.show();
+    spinner.style.display = 'inline-block';
+    gradcamImage.style.display = 'none';
+    
+    fetch(`{% url 'detector:gradcam' %}?filename={{ filename }}&model_id=${modelId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            gradcamImage.src = `data:image/png;base64,${data.gradcam_image}`;
+            gradcamImage.style.display = 'block';
+            spinner.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error generating visualization: ' + error.message);
+            spinner.style.display = 'none';
+            modal.hide();
+        });
+}
+</script>
+{% endblock %}

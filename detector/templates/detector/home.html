@@ -1,0 +1,59 @@
+{% extends 'detector/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">
+                    <i class="fas fa-upload me-2"></i>Upload Image for Analysis
+                </h2>
+                
+                <form method="post" action="{% url 'detector:analyze' %}" enctype="multipart/form-data" id="upload-form" data-result-url="{% url 'detector:result' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_model" class="form-label">Select Detection Model</label>
+                        {{ form.model }}
+                        <div class="form-text">Choose the AI model to use for analysis</div>
+                    </div>
+
+                    <div class="upload-zone mb-3">
+                        <div class="text-center p-4 border rounded dropzone-area">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                            <p class="mb-2">Drag and drop your image here or click to browse</p>
+                            {{ form.image }}
+                            <div class="form-text">Supported formats: JPG, JPEG, PNG (max 10MB)</div>
+                        </div>
+                    </div>
+
+                    <div class="preview-container text-center mb-3" style="display: none;">
+                        <div class="position-relative d-inline-block">
+                            <img id="preview" class="img-fluid rounded shadow-sm" alt="Preview">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" id="remove-image">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="progress mb-3" style="display: none;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="analyze-btn" disabled>
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status"></span>
+                            <i class="fas fa-search me-2"></i>Analyze Image
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'detector/js/main.js' %}"></script>
+{% endblock %}

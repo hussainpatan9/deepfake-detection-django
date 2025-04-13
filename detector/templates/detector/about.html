@@ -1,0 +1,203 @@
+{% extends 'detector/base.html' %}
+{% load static %}
+
+{% block title %}About - DeepFake Detector{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="hero-section text-center mb-5 p-5 rounded shadow-sm">
+            <h1 class="display-4 mb-3">DeepFake Detector</h1>
+            <p class="lead text-muted">Using Advanced AI to Combat Digital Manipulation</p>
+            <div class="stats-bar mt-4">
+                <div class="row g-4 text-center">
+                    <!-- Project Stats -->
+                    <div class="col-md-3">
+                        <div class="stat-item p-4 rounded shadow-sm">
+                            <i class="fas fa-brain fa-2x mb-2 text-primary"></i>
+                            <h3>{{ total_models }}</h3>
+                            <p>AI Models</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item p-4 rounded shadow-sm">
+                            <i class="fas fa-microchip fa-2x mb-2 text-primary"></i>
+                            <h3>{{ device_used }}</h3>
+                            <p>Processing Unit</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item p-4 rounded shadow-sm">
+                            <i class="fas fa-code-branch fa-2x mb-2 text-primary"></i>
+                            <h3>{{ tensorflow_version }}</h3>
+                            <p>TensorFlow</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item p-4 rounded shadow-sm">
+                            <i class="fas fa-tachometer-alt fa-2x mb-2 text-primary"></i>
+                            <h3>Real-time</h3>
+                            <p>Analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Overview with Timeline -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">How It Works</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-point"></div>
+                        <div class="timeline-content">
+                            <h4><i class="fas fa-upload me-2"></i>Upload</h4>
+                            <p>Upload any image for analysis. Supports JPG, JPEG, and PNG formats up to 10MB.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-point"></div>
+                        <div class="timeline-content">
+                            <h4><i class="fas fa-cogs me-2"></i>Process</h4>
+                            <p>Choose from multiple AI models to analyze your image using state-of-the-art deep learning.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-point"></div>
+                        <div class="timeline-content">
+                            <h4><i class="fas fa-chart-bar me-2"></i>Results</h4>
+                            <p>Get comprehensive analysis with confidence scores, technical details, and image metadata.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Models with Cards -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-cube me-2"></i>Available Models
+                </h3>
+                <div class="row">
+                    {% for model in models %}
+                    <div class="col-md-4 mb-4">
+                        <div class="model-card card h-100 hover-effect">
+                            <div class="card-body">
+                                <div class="model-icon mb-3">
+                                    <i class="fas fa-network-wired fa-2x text-primary"></i>
+                                </div>
+                                <h5 class="card-title">{{ model.name }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ model.architecture }}</h6>
+                                <p class="card-text">{{ model.description }}</p>
+                                <div class="model-specs mt-3">
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-expand-arrows-alt me-1"></i>
+                                        Input: {{ model.input_size }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Stack -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-layer-group me-2"></i>Technical Stack
+                </h3>
+                <div class="tech-stack">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="tech-item text-center p-4 rounded shadow-sm">
+                                <i class="fab fa-python fa-3x mb-3 text-primary"></i>
+                                <h5>Python {{ python_version }}</h5>
+                                <p class="text-muted">Core Language</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="tech-item text-center p-4 rounded shadow-sm">
+                                <i class="fas fa-code fa-3x mb-3 text-success"></i>
+                                <h5>Django {{ django_version }}</h5>
+                                <p class="text-muted">Web Framework</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="tech-item text-center p-4 rounded shadow-sm">
+                                <i class="fas fa-brain fa-3x mb-3 text-info"></i>
+                                <h5>TensorFlow {{ tensorflow_version }}</h5>
+                                <p class="text-muted">AI Framework</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="tech-item text-center p-4 rounded shadow-sm">
+                                <i class="fas fa-bolt fa-3x mb-3 text-warning"></i>
+                                <h5>{{ device_used }} Acceleration</h5>
+                                <p class="text-muted">Processing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-star me-2"></i>Key Features
+                </h3>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="feature-item p-4 text-center rounded shadow-sm">
+                            <i class="fas fa-shield-alt fa-2x mb-3 text-primary"></i>
+                            <h5>Advanced Detection</h5>
+                            <p>State-of-the-art deep learning models for accurate detection</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-item p-4 text-center rounded shadow-sm">
+                            <i class="fas fa-tachometer-alt fa-2x mb-3 text-success"></i>
+                            <h5>Real-time Analysis</h5>
+                            <p>Quick and efficient image processing</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-item p-4 text-center rounded shadow-sm">
+                            <i class="fas fa-file-pdf fa-2x mb-3 text-danger"></i>
+                            <h5>Detailed Reports</h5>
+                            <p>Comprehensive analysis with downloadable PDF reports</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="card shadow-sm contact-section p-4 rounded">
+            <div class="card-body text-center">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-envelope-open-text me-2"></i>Get in Touch
+                </h3>
+                <div class="developer-info mb-4">
+                    {% if profile_image_exists %}
+                    <img src="{% static 'detector/images/profile.jpg' %}" alt="Developer" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endif %}
+                    <h4>Hussain</h4>
+                    <p class="text-muted">AI & Machine Learning Developer</p>
+                </div>
+                <a href="mailto:hussainkhuzema99@gmail.com" class="btn btn-primary btn-lg">
+                    <i class="fas fa-envelope me-2"></i>Contact Me
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

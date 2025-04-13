@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DeepFake Detector{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'detector/css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'detector:home' %}">
+                <i class="fas fa-shield-alt me-2"></i>DeepFake Detector
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <a href="{% url 'detector:about' %}" class="btn btn-link nav-link px-3">
+                    <i class="fas fa-info-circle me-2"></i>About
+                </a>
+                <button class="btn btn-link nav-link px-3 py-2" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer mt-auto py-3">
+        <div class="container text-center">
+            <p class="text-muted mb-0">© 2024 DeepFake Detector - Developed by Hussain <a href="mailto:hussainkhuzema99@gmail.com" class="text-muted"><i class="fas fa-envelope ms-1"></i></a></p>
+            <p class="text-muted small mb-0">Using advanced AI to detect manipulated images</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const getStoredTheme = () => localStorage.getItem('theme') || 'auto';
+            const setStoredTheme = theme => localStorage.setItem('theme', theme);
+
+            const getPreferredTheme = () => {
+                const storedTheme = getStoredTheme();
+                if (storedTheme !== 'auto') return storedTheme;
+                
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            };
+
+            const setTheme = theme => {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                const icon = document.querySelector('#theme-toggle i');
+                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            };
+
+            // Set initial theme
+            setTheme(getPreferredTheme());
+
+            // Add click handler to theme toggle button
+            document.querySelector('#theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+                setStoredTheme(newTheme);
+            });
+
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                const storedTheme = getStoredTheme();
+                if (storedTheme === 'auto') {
+                    setTheme(getPreferredTheme());
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
