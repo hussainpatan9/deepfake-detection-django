@@ -44,37 +44,37 @@ deepfake_detector/
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd deepfake_detector
    ```
-
 2. Create and activate a virtual environment:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
 3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
-
 4. Apply migrations:
+
    ```bash
    python manage.py migrate
    ```
-
 5. Collect static files:
+
    ```bash
    python manage.py collectstatic
    ```
-
 6. Start the development server:
+
    ```bash
    python manage.py runserver
    ```
-
 7. Access the application at `http://127.0.0.1:8000`.
 
 ## Configuration
@@ -88,6 +88,7 @@ deepfake_detector/
 ### Environment Variables
 
 For production, set the following environment variables:
+
 - `SECRET_KEY`: Replace the default secret key with a secure one.
 - `DEBUG`: Set to `False` in production.
 - `ALLOWED_HOSTS`: Add your domain or server IP.
@@ -101,16 +102,17 @@ For production, set the following environment variables:
 ## Available Models
 
 1. **DenseNet201 Deepfake Detector**
+
    - Architecture: DenseNet201
    - Input Size: 256x256
    - Description: Optimized for deepfake detection using transfer learning.
-
 2. **ResNet50 Image Classifier**
+
    - Architecture: ResNet50
    - Input Size: 256x256
    - Description: Known for its residual connections, adapted for deepfake detection.
-
 3. **Custom Lightweight CNN**
+
    - Architecture: Custom CNN
    - Input Size: 256x256
    - Description: Lightweight architecture for efficient classification.
@@ -140,4 +142,4 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 
 ## Contact
 
-For questions or support, please contact [your-email@example.com].
+For questions or support, please contact hussainpatan9@gmail.com
